@@ -9,7 +9,7 @@ namespace SudokuLibrary;
 public class SudokuTable
 {
     public List<SudokuSquare> GameSquares;
-    public SudokuSquare GetSquare(int x, int y) => GameSquares.Where(square => square.X == x && square.Y == y).First();
+    public SudokuSquare? GetSquare(int x, int y) => GameSquares.Find(square => square.X == x && square.Y == y);
     public SudokuTable(int[] sudoku)
     {
         GameSquares = new List<SudokuSquare>();
@@ -27,11 +27,15 @@ public class SudokuTable
             {
                 if (ix == 3 || ix == 6)
                     box++;
-                GameSquares.Add(new SudokuSquare(sudoku[count], ix, iy, box));
+                GameSquares.Add(new SudokuSquare((Values)sudoku[count], ix, iy, box, this.GameSquares));
                 count++;
             }
         }
     }
+    /// <summary>
+    /// An overloaded constructor for creating copy of SudokuTable.
+    /// </summary>
+    /// <param name="squares"></param>
     public SudokuTable(List<SudokuSquare> squares)
     {
         GameSquares = new List<SudokuSquare>(squares); 
