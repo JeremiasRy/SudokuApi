@@ -1,12 +1,11 @@
 ﻿namespace SudokuLibrary;
-
 public class SudokuSquare
 {
     public int X { get; private set; }
     public int Y { get; private set; }
     public int Box { get; private set; }
     public Values Value { get; private set; }
-    public List<SudokuSquare> SudokuTable { get; set; }
+    readonly List<SudokuSquare> SudokuTable;
 
     public bool IsCorrect { get => (HorizontalCheck(Value) && VerticalCheck(Value) && BoxCheck(Value)); }
 

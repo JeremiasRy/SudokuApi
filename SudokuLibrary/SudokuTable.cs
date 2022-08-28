@@ -5,11 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SudokuLibrary;
-
 public class SudokuTable
 {
-    public List<SudokuSquare> GameSquares;
+    public readonly List<SudokuSquare> GameSquares;
+    public readonly Solver Solver;
     public SudokuSquare? GetSquare(int x, int y) => GameSquares.Find(square => square.X == x && square.Y == y);
+    public List<SudokuSquare> EmptySquares => GameSquares.Where(square => square.Value.Equals(Values.NoValue)).ToList();
+    public List<SudokuSquare> CorrectSquares => GameSquares.Where(square => square.IsCorrect).ToList();
+    public List<SudokuSquare> InCorrectSquares => GameSquares.Where(square => !square.IsCorrect).ToList();  
+
     public SudokuTable(int[] sudoku)
     {
         GameSquares = new List<SudokuSquare>();
@@ -31,13 +35,15 @@ public class SudokuTable
                 count++;
             }
         }
+        Solver = new Solver(this);
     }
-    /// <summary>
-    /// An overloaded constructor for creating copy of SudokuTable.
-    /// </summary>
-    /// <param name="squares"></param>
-    public SudokuTable(List<SudokuSquare> squares)
+    public SudokuTable(List<SudokuSquare> sudokuSquares) //Create a copy of sudoku table
     {
-        GameSquares = new List<SudokuSquare>(squares); 
+        GameSquares = new List<SudokuSquare>();
+        foreach (SudokuSquare square in sudokuSquares)
+        {
+            GameSquares.Add(new SudokuSquare(square.Value, square.X, square.Y, square.Box, this.GameSquares));
+        }
+        Solver = new Solver(this);
     }
 }
