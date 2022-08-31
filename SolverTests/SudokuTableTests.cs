@@ -1,58 +1,23 @@
 namespace SudokuTests;
 using SudokuLibrary;
 using System.Linq;
+using UnitTests;
 
 [TestClass]
 public class SudokuTableTests
 {
-    static readonly int[] sudEmpty = new int[81];
-    static readonly int[] sudCorrect = new int[81]
-    {
-            1,2,3,4,5,6,7,8,9,
-            4,5,6,7,8,9,1,2,3,
-            7,8,9,1,2,3,4,5,6,
-            2,3,4,5,6,7,8,9,1,
-            5,6,7,8,9,1,2,3,4,
-            8,9,1,2,3,4,5,6,7,
-            3,4,5,6,7,8,9,1,2,
-            6,7,8,9,1,2,3,4,5,
-            9,1,2,3,4,5,6,7,8,
-    };
-    static readonly int[] sudCorrectNineEmpty = new int[81]
-    {
-            1,2,3,4,5,6,0,0,0,
-            4,5,6,7,8,9,1,2,3,
-            0,0,0,1,2,3,4,5,6,
-            2,3,4,5,6,7,8,9,1,
-            5,6,7,0,0,0,2,3,4,
-            8,9,1,2,3,4,5,6,7,
-            3,4,5,6,7,8,9,1,2,
-            6,7,8,9,1,2,3,4,5,
-            9,1,2,3,4,5,6,7,8,
-    };
-    SudokuTable sudTable = new(sudEmpty);
+    SudokuTable sudTable = new(new int[81]);
 
     [TestInitialize] 
     public void InitializeTable()
     {
-        int count = 0;
-        for (int i = 0; i < 9; i++)
-        {
-            for (int j = 0; j < 9; j++)
-            {
-                sudEmpty[count] = 0;
-                count++;
-            }
-        }
-
-        Assert.AreEqual(81, sudEmpty.Length);
-        sudTable = new SudokuTable(sudEmpty);
+        sudTable = new SudokuTable(SudokuArrays.Empty());
     }
     [TestMethod]
     public void TestTableXYBox()
     {
         int count = 0;
-        int box = 0;
+        int box;
         SudokuSquare? square; 
 
         for (int y = 0; y < 9; y++)
@@ -70,7 +35,7 @@ public class SudokuTableTests
                 square = sudTable.GetSquare(x, y);
                 if (square is not null)
                 {
-                    Assert.AreEqual((Values)sudEmpty[count], square.Value);
+                    Assert.AreEqual((Values)SudokuArrays.Empty()[count], square.Value);
                     Assert.AreEqual(x, square.X);
                     Assert.AreEqual(y, square.Y);
                     Assert.AreEqual(box, square.Box);
@@ -88,25 +53,24 @@ public class SudokuTableTests
         if (square is not null)
         {
             Assert.IsFalse(sudTable.CorrectSquares.Any());
-            Assert.AreEqual(9, square.PossibleCorrectValues().Count);
+            Assert.AreEqual(9, square.PossibleCorrectValues.Count);
 
             square.InsertValue(Values.One);
-            Assert.AreEqual(1, sudTable.CorrectSquares.Count());
+            Assert.AreEqual(1, sudTable.CorrectSquares.Count);
         }
         square = sudTable.GetSquare(1, 0);
         if (square is not null)
         {
-            Assert.AreEqual(8, square.PossibleCorrectValues().Count);
+            Assert.AreEqual(8, square.PossibleCorrectValues.Count);
         }
-
-        sudTable = new SudokuTable(sudCorrect);
+        sudTable = new SudokuTable(SudokuArrays.sudCorrect);
 
         Assert.AreEqual(81, sudTable.CorrectSquares.Count);
         Assert.IsFalse(sudTable.EmptySquares.Any());
 
         Assert.AreEqual(0, sudTable.EmptySquares.Count);
 
-        sudTable = new SudokuTable(sudCorrectNineEmpty);
+        sudTable = new SudokuTable(SudokuArrays.sudCorrectNineEmpty);
         square = sudTable.GetSquare(0, 0);
         if (square is not null)
             Assert.IsTrue(square.IsCorrect);
@@ -130,11 +94,11 @@ public class SudokuTableTests
         square = sudTable.GetSquare(7, 0);
         if (square is not null)
         {
-            Assert.AreEqual((Values)8, square.PossibleCorrectValues().First());
+            Assert.AreEqual((Values)8, square.PossibleCorrectValues.First());
             square.InsertValue(Values.Eight);
         }
         square = sudTable.GetSquare(8, 0);
         if (square is not null)
-            Assert.AreEqual(Values.Nine, square.PossibleCorrectValues().First());
+            Assert.AreEqual(Values.Nine, square.PossibleCorrectValues.First());
     }
 }
