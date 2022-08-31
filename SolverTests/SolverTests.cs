@@ -18,7 +18,7 @@ public class SolverTests
     public void SolverStartingPointIsNotEqualSudokuTable()
     {
         if (sudokuTable.Solved is not null)
-           Assert.AreNotEqual(sudokuTable, sudokuTable.Solved.InProgressTable);
+           Assert.AreNotEqual(sudokuTable, sudokuTable.Solved.StartingPoint);
     }
     [TestMethod]
     public void SolverSolvedTableIsNotEqualToSdokuTableAndInfiniteLoopIsNotForming()
@@ -66,8 +66,8 @@ public class SolverTests
         if (sudokuTable.Solved is not null)
         {
             Assert.AreEqual(81, sudokuTable.Solved.CompleteTable.CorrectSquares.Count);
-            Assert.AreEqual(0, sudokuTable.Solved.InProgressTable.CorrectSquares.Count);
-            Assert.AreNotEqual(sudokuTable.Solved.InProgressTable, sudokuTable.Solved.CompleteTable);
+            Assert.AreEqual(0, sudokuTable.Solved.StartingPoint.CorrectSquares.Count);
+            Assert.AreNotEqual(sudokuTable.Solved.StartingPoint, sudokuTable.Solved.CompleteTable);
         }
     }
     [TestMethod]
@@ -76,10 +76,10 @@ public class SolverTests
         if (sudokuTable.Solved is not null)
         {
             var correctSquare = sudokuTable.Solved.CompleteTable.GetSquare(3, 5);
-            var intArray = sudokuTable.GetOneCorrectValue(3, 5);
+            var solveResponse = sudokuTable.GetOneCorrectValue(3, 5);
             if (correctSquare is not null)
             {
-                Assert.AreEqual(intArray[48], (int)correctSquare.Value);
+                Assert.AreEqual(solveResponse.Sudoku[48], (int)correctSquare.Value);
             }
         }
         sudokuTable = new SudokuTable(SudokuArrays.sudHardAlmostEmpty);
@@ -87,10 +87,10 @@ public class SolverTests
         if (sudokuTable.Solved is not null)
         {
             var correctSquare = sudokuTable.Solved.CompleteTable.GetSquare(3, 5);
-            var intArray = sudokuTable.GetOneCorrectValue(3, 5);
+            var solveResponse = sudokuTable.GetOneCorrectValue(3, 5);
             if (correctSquare is not null)
             {
-                Assert.AreEqual(intArray[48], (int)correctSquare.Value);
+                Assert.AreEqual(solveResponse.Sudoku[48], (int)correctSquare.Value);
             }
         }
         sudokuTable = new SudokuTable(SudokuArrays.sudImpossible);
@@ -98,7 +98,7 @@ public class SolverTests
         if (sudokuTable.Solved is not null)
         {
             Assert.AreEqual(Array.Empty<int>(), sudokuTable.GetCompletedSudoku().Sudoku);
-            Assert.AreEqual(Array.Empty<int>(), sudokuTable.GetOneCorrectValue(8,8));
+            Assert.AreEqual(Array.Empty<int>(), sudokuTable.GetOneCorrectValue(8,8).Sudoku);
         }
 
     }

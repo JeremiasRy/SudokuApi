@@ -27,19 +27,16 @@ public class SudokuController : ControllerBase
         }
 
     }
-    static int[]? ParseCoordinates(string coord)
+    static int[]? ParseCoordinates(string x, string y)
     {
         try
         {
-            var coordArray = coord.Split("-").Select(Int32.Parse).ToArray();
-            if (coordArray.Length != 2 && coordArray[0] < 0 || coordArray[0] > 8 && coordArray[1] < 0 && coordArray[1] > 8)
-            {
+            int xCoordinate = int.Parse(x);
+            int yCoordinate = int.Parse(y);
+            if (xCoordinate < 0 || xCoordinate > 8 || yCoordinate < 0 || yCoordinate > 8)
                 return null;
-            } else
-            {
-                return coordArray;
-            }
-
+            else
+                return new [] { xCoordinate, yCoordinate };
         } catch (Exception)
         {
             return null;
@@ -64,20 +61,21 @@ public class SudokuController : ControllerBase
         }
 
     }
-    [HttpGet("/solveSquare/{coordinates}")]
-    public IResult GetOneCorrectSquare(string coordinates, string sudoku)
+    [HttpGet("/solveSquare/{x}/{y}/{sudoku}")]
+    public IResult GetOneCorrectSquare(string x,string y, string sudoku)
     {
         _logger.LogInformation("Http Get request to solve one square // {0}", DateTime.UtcNow.ToString());
 
-        var squareCoordinates = ParseCoordinates(coordinates);
+        var squareCoordinates = ParseCoordinates(x,y);
         var sudArray = ParseSudoku(sudoku);
+
         if (squareCoordinates is not null && sudArray is not null)
         {
             SudokuTable sudokuTable = new(sudArray);
             return Results.Ok(sudokuTable.GetOneCorrectValue(squareCoordinates[0], squareCoordinates[1]));
         } else
         {
-            string message = $"Sudoku should be 9 x 9, total 81 squares size, separate squares with commas";
+            string message = $"Sudoku should be 9 x 9, total 81 squares size, separate squares with commas. Coordinates should be from 0 to 8";
             ModelState.AddModelError("Sudoku malform", message);
             return Results.BadRequest(ModelState);
         }

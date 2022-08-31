@@ -41,7 +41,7 @@ public class SudokuTable
         if (Solved is not null && !Solved.Impossible)
         {
             Solved.AddOneCorrectValue(x, y);
-            return new SolveResponse(Solved.InProgressTable.GameSquares.Select(square => (int)square.Value).ToArray(), 0, false);
+            return new SolveResponse(Solved.StartingPoint.GameSquares.Select(square => (int)square.Value).ToArray(), Solved.BranchesUsedToSolve, false);
         }
         else
             return new SolveResponse(Array.Empty<int>(), 0, true);

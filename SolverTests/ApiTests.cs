@@ -1,6 +1,5 @@
 ﻿using SudokuBackend.Controllers;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using UnitTests;
 
 namespace ApiTests;
 
@@ -15,7 +14,10 @@ public class ApiPost
     [TestMethod]
     public void ApiInformsMalformattedSudoku()
     {
+        
         var controller = new SudokuController(new Microsoft.Extensions.Logging.LoggerFactory());
+        var result = controller.GetCompletedSudoku("0,0,00,0,0,0,");
+
     }
     [TestMethod]
     public void ApiInformsImpossibleToSolve()

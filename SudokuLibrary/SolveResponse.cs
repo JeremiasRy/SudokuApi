@@ -10,7 +10,6 @@ public class SolveResponse
 {
     public int[] Sudoku { get; set; }
     public int BranchesUsed { get; set; }
-
     public bool Impossible { get; set; }
 
     public SolveResponse(int[] sudArray, int branches, bool impossible)

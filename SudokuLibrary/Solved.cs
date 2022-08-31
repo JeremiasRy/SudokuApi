@@ -9,9 +9,9 @@ namespace SudokuLibrary;
 public class Solved
 {
     public readonly SudokuTable CompleteTable;
-    public readonly SudokuTable InProgressTable;
+    public readonly SudokuTable StartingPoint;
 
-    readonly Queue<SudokuTable> _branches = new Queue<SudokuTable> ();
+    readonly Queue<SudokuTable> _branches = new();
     public int BranchesUsedToSolve = 0;
     public bool Impossible { get; set; }
     public void AddOneCorrectValue(int x, int y)
@@ -21,7 +21,7 @@ public class Solved
             return;
         }
         var correct = CompleteTable.GetSquare(x, y);
-        var empty = InProgressTable.GetSquare(x, y);
+        var empty = StartingPoint.GetSquare(x, y);
 
         if (correct is not null && empty is not null && empty.Value == Values.NoValue)
             empty.InsertValue(correct.Value);
@@ -30,16 +30,16 @@ public class Solved
     }
     SudokuTable SolvePuzzle()
     {
-        if (InProgressTable.CorrectSquares.Count == 81)
+        if (StartingPoint.CorrectSquares.Count == 81)
         {
-            return new SudokuTable(InProgressTable.GameSquares);
-        } else if (InProgressTable.InCorrectSquares.Any(s => s.Value != Values.NoValue))
+            return new SudokuTable(StartingPoint.GameSquares);
+        } else if (StartingPoint.InCorrectSquares.Any(s => s.Value != Values.NoValue))
         {
             Impossible = true;
-            return InProgressTable;
+            return StartingPoint;
         }
         bool solved = false;
-        SudokuTable tableToSolve = new SudokuTable(InProgressTable.GameSquares); 
+        SudokuTable tableToSolve = new SudokuTable(StartingPoint.GameSquares); 
         SudokuSquare squareToSolve;
 
         while (!solved)
@@ -49,7 +49,7 @@ public class Solved
                 if (!_branches.Any())
                 {
                     Impossible = true;
-                    return InProgressTable;
+                    return StartingPoint;
 
                 }
                 tableToSolve = _branches.Dequeue();  
@@ -82,7 +82,7 @@ public class Solved
     }
     public Solved(SudokuTable startingpoint)
     {
-        InProgressTable = new SudokuTable(startingpoint.GameSquares);
+        StartingPoint = new SudokuTable(startingpoint.GameSquares);
         CompleteTable = SolvePuzzle();
     }
 }
