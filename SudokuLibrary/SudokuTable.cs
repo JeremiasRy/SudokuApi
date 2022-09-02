@@ -9,7 +9,21 @@ public class SudokuTable
 {
     public readonly List<SudokuSquare> GameSquares;
     public readonly Solved? Solved;
-    public SudokuSquare? GetSquare(int x, int y) => GameSquares.Find(square => square.X == x && square.Y == y);
+    public SudokuSquare GetSquare(int x, int y) 
+    {
+        if (x > 8 || y > 8)
+        {
+            throw new ArgumentException(message: "Coordinates out of range");
+        }
+        var square = GameSquares.Find(square => square.X == x && square.Y == y);
+        if (square is not null)
+        {
+            return square;
+        } else
+        {
+            throw new Exception(message: "Didn't find square");
+        }  
+    }
     public List<SudokuSquare> EmptySquares => GameSquares.Where(square => square.Value == Values.NoValue).ToList();
     public List<SudokuSquare> CorrectSquares => GameSquares.Where(square => square.IsCorrect).ToList();
     public List<SudokuSquare> InCorrectSquares => GameSquares.Where(square => !square.IsCorrect).ToList();
@@ -49,6 +63,10 @@ public class SudokuTable
     }
     public SudokuTable(int[] sudoku)
     {
+        if (sudoku.Length != 81)
+        {
+            throw new ArgumentException(message: $"sudoku was malform, should have length of 81 was {sudoku.Length}");
+        }
         GameSquares = new List<SudokuSquare>();
         int count = 0;
         int box;

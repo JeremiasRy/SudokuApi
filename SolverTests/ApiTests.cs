@@ -1,10 +1,11 @@
 ﻿using SudokuBackend.Controllers;
+using Microsoft.AspNetCore.Http;
 using UnitTests;
 
 namespace ApiTests;
 
 [TestClass]
-public class ApiPost
+public class ApiGet
 {
     [TestMethod] 
     public void ApiGetSolvedReturnsSolvedArray()
@@ -14,9 +15,15 @@ public class ApiPost
     [TestMethod]
     public void ApiInformsMalformattedSudoku()
     {
-        
         var controller = new SudokuController(new Microsoft.Extensions.Logging.LoggerFactory());
-        var result = controller.GetCompletedSudoku("0,0,00,0,0,0,");
+        try
+        {
+            controller.GetCompletedSudoku("0,0,0");
+        } catch (Exception ex)
+        {
+            Assert.IsTrue(ex is ArgumentException);
+            Assert.AreEqual(ex.Message, "sudoku was malform, should have length of 81 was 3");
+        }
 
     }
     [TestMethod]

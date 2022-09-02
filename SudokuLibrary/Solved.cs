@@ -13,7 +13,7 @@ public class Solved
 
     readonly Queue<SudokuTable> _branches = new();
     public int BranchesUsedToSolve = 0;
-    public bool Impossible { get; set; }
+    public bool Impossible { get; set; } = false;
     public void AddOneCorrectValue(int x, int y)
     {
         if (Impossible)
@@ -44,6 +44,7 @@ public class Solved
 
         while (!solved)
         {
+            var leastPos = tableToSolve.LeastPossibleValuesSquare;
             if (tableToSolve.LeastPossibleValuesSquare == null)
             {
                 if (!_branches.Any())

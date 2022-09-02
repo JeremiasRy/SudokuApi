@@ -18,7 +18,7 @@ public class SudokuTableTests
     {
         int count = 0;
         int box;
-        SudokuSquare? square; 
+        SudokuSquare square; 
 
         for (int y = 0; y < 9; y++)
         {
@@ -43,7 +43,14 @@ public class SudokuTableTests
                 count++;
             }
         }
-        Assert.IsNull(sudTable.GetSquare(9999, 9999));
+        try
+        {
+            sudTable.GetSquare(9999, 9999);
+        } catch (Exception ex)
+        {
+            Assert.IsTrue(ex is ArgumentException);
+            Assert.AreEqual(ex.Message, "Coordinates out of range");
+        }
     }
 
     [TestMethod]

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using DataAccess.Models;
 
 namespace SudokuBackend.Controllers;
 
@@ -12,51 +11,44 @@ public class SudokuController : ControllerBase
     {
         _logger = logger.CreateLogger("Sudoku controls");
     }
-    static int[]? ParseSudoku(string sud)
+    static int[] ParseSudoku(string sud)
     {
         try
         {
-            var sudArray = sud.Split(",").Select(Int32.Parse).ToArray();
-            if (sudArray.Length == 81)
-                return sudArray;
-            else
-                return null;
+            return sud.Split(",").Select(Int32.Parse).ToArray();
         } catch (Exception)
         {
-            return null;
+            return Array.Empty<int>();
         }
 
     }
-    static int[]? ParseCoordinates(string x, string y)
+    static int[] ParseCoordinates(string x, string y)
     {
         try
         {
             int xCoordinate = int.Parse(x);
             int yCoordinate = int.Parse(y);
             if (xCoordinate < 0 || xCoordinate > 8 || yCoordinate < 0 || yCoordinate > 8)
-                return null;
+                return Array.Empty<int>();
             else
                 return new [] { xCoordinate, yCoordinate };
         } catch (Exception)
         {
-            return null;
+            return Array.Empty<int>();
         }
 
     }
     [HttpGet("/solve/{sudoku}")]
     public IResult GetCompletedSudoku(string sudoku)
     {
-        _logger.LogInformation("Http Get request to solve // {0}", DateTime.UtcNow.ToString());
-
-        var sudArray = ParseSudoku(sudoku);
-        if (sudArray is not null)
+        int[] sudokuArray = ParseSudoku(sudoku);
+        try
         {
-            SudokuTable sudokuTable = new(sudArray);
+            var sudokuTable = new SudokuTable(sudokuArray);
             return Results.Ok(sudokuTable.GetCompletedSudoku());
-        } else
+        } catch (Exception ex)
         {
-            string message = $"Sudoku should be 9 x 9, total 81 squares size, separate squares with commas";
-            ModelState.AddModelError("Sudoku malform", message);
+            ModelState.AddModelError("Bad request", ex.Message);
             return Results.BadRequest(ModelState);
         }
 
@@ -66,17 +58,30 @@ public class SudokuController : ControllerBase
     {
         _logger.LogInformation("Http Get request to solve one square // {0}", DateTime.UtcNow.ToString());
 
-        var squareCoordinates = ParseCoordinates(x,y);
-        var sudArray = ParseSudoku(sudoku);
+        int[] squareCoordinates = ParseCoordinates(x,y);
+        int[] sudArray = ParseSudoku(sudoku);
 
-        if (squareCoordinates is not null && sudArray is not null)
+        try 
         {
             SudokuTable sudokuTable = new(sudArray);
             return Results.Ok(sudokuTable.GetOneCorrectValue(squareCoordinates[0], squareCoordinates[1]));
-        } else
+        } catch (Exception ex)
         {
-            string message = $"Sudoku should be 9 x 9, total 81 squares size, separate squares with commas. Coordinates should be from 0 to 8";
-            ModelState.AddModelError("Sudoku malform", message);
+            ModelState.AddModelError("Sudoku malform", ex.Message);
+            return Results.BadRequest(ModelState);
+        }
+    }
+    [HttpGet("/randomsudoku/{difficulty}")]
+    public IResult GetRandomSudoku(int difficulty)
+    {
+        _logger.LogInformation("Http Get request for random sudoku // {0}", DateTime.UtcNow.ToString());
+        try
+        {
+            var result = RandomSudoku.GetRandomSudoku(difficulty);
+            return Results.Ok(result);
+        } catch (Exception ex)
+        {
+            ModelState.AddModelError("Bad request", ex.Message);
             return Results.BadRequest(ModelState);
         }
     }
