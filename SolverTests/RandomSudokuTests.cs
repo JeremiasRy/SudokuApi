@@ -1,47 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SudokuLibrary;
+﻿using SudokuLibrary;
 
 namespace SudokuTests;
 [TestClass]
 public class RandomSudokuTests
 {
     [TestMethod]
-    public void ReceiveARandomSudokuAccordingToDifficulty()
+    public async Task ReceiveARandomSudokuAccordingToDifficulty()
     {
-        var randomSudoku = RandomSudoku.GetRandomSudoku(0);
-        var randomSudoku2 = RandomSudoku.GetRandomSudoku(0);
-        Assert.AreNotEqual(randomSudoku.Sudoku, randomSudoku2.Sudoku);
-        var newSudoku = new SudokuTable(randomSudoku.Sudoku);
-        if (newSudoku.Solved is not null)
-        {
-            Assert.IsFalse(newSudoku.Solved.Impossible);
-            Assert.IsTrue(newSudoku.CorrectSquares.Count == 35);
-        }
-        randomSudoku = RandomSudoku.GetRandomSudoku(1);
-        newSudoku = new SudokuTable(randomSudoku.Sudoku);
-        if (newSudoku.Solved is not null)
-        {
-            Assert.IsFalse(newSudoku.Solved.Impossible);
-            Assert.IsTrue(newSudoku.CorrectSquares.Count == 25);
-        }
-        randomSudoku = RandomSudoku.GetRandomSudoku(2);
-        newSudoku = new SudokuTable(randomSudoku.Sudoku);
-        if (newSudoku.Solved is not null)
-        {
-            Assert.IsFalse(newSudoku.Solved.Impossible);
-            Assert.IsTrue(newSudoku.CorrectSquares.Count == 15);
-        }
+        var randomSudoku1 = await RandomSudoku.GetRandomSudoku(0);
+        var randomSudoku2 = await RandomSudoku.GetRandomSudoku(1);
+        var randomSudoku3 = await RandomSudoku.GetRandomSudoku(2);
+        Assert.AreNotEqual(randomSudoku1.Sudoku, randomSudoku2.Sudoku);
+        Assert.AreNotEqual(randomSudoku2.Sudoku, randomSudoku3.Sudoku);
+        Assert.AreNotEqual(randomSudoku3.Sudoku, randomSudoku1.Sudoku);
+
+        var reMadeSudokuTable1 = await SudokuTable.BuildTable(randomSudoku1.Sudoku);
+        var reMadeSudokuTable2 = await SudokuTable.BuildTable(randomSudoku2.Sudoku);
+        var reMadeSudokuTable3 = await SudokuTable.BuildTable(randomSudoku3.Sudoku);
+        Assert.AreEqual(35, SudokuTable.CorrectSquares(reMadeSudokuTable1.GameSquares).Count);
+        Assert.AreEqual(25, SudokuTable.CorrectSquares(reMadeSudokuTable2.GameSquares).Count);
+        Assert.AreEqual(15, SudokuTable.CorrectSquares(reMadeSudokuTable3.GameSquares).Count);
+
         try
         {
-            randomSudoku = RandomSudoku.GetRandomSudoku(3);
+            var randomMalformDifficulty = await RandomSudoku.GetRandomSudoku(1232456783);
         } catch (Exception ex)
         {
-            Assert.IsTrue(ex is ArgumentException);
-            Assert.AreEqual(ex.Message, "difficulty is out of range");
+            Assert.AreEqual("Difficulty was out of range", ex.Message);
         }
+
     }
 }

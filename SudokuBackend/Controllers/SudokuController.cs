@@ -11,78 +11,75 @@ public class SudokuController : ControllerBase
     {
         _logger = logger.CreateLogger("Sudoku controls");
     }
-    static int[] ParseSudoku(string sud)
-    {
-        try
-        {
-            return sud.Split(",").Select(Int32.Parse).ToArray();
-        } catch (Exception)
-        {
-            return Array.Empty<int>();
-        }
 
-    }
-    static int[] ParseCoordinates(string x, string y)
-    {
-        try
-        {
-            int xCoordinate = int.Parse(x);
-            int yCoordinate = int.Parse(y);
-            if (xCoordinate < 0 || xCoordinate > 8 || yCoordinate < 0 || yCoordinate > 8)
-                return Array.Empty<int>();
-            else
-                return new [] { xCoordinate, yCoordinate };
-        } catch (Exception)
-        {
-            return Array.Empty<int>();
-        }
-
-    }
     [HttpGet("/solve/{sudoku}")]
-    public IResult GetCompletedSudoku(string sudoku)
+    public async Task<IActionResult> GetCompletedSudoku(string sudoku)
     {
-        int[] sudokuArray = ParseSudoku(sudoku);
         try
         {
-            var sudokuTable = new SudokuTable(sudokuArray);
-            return Results.Ok(sudokuTable.GetCompletedSudoku());
-        } catch (Exception ex)
-        {
-            ModelState.AddModelError("Bad request", ex.Message);
-            return Results.BadRequest(ModelState);
-        }
+            int[] sudokuArray = sudoku.Split(",").Select(Int32.Parse).ToArray();
+            try
+            {
+                var sudokuTable = await SudokuTable.BuildTable(sudokuArray);
+                return Ok(sudokuTable.GetCompletedSudoku());
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("Bad request", ex.Message);
+                return BadRequest(ModelState);
+            }
 
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Wrong format", ex.Message);
+            return BadRequest(ModelState);
+        }
     }
     [HttpGet("/solveSquare/{x}/{y}/{sudoku}")]
-    public IResult GetOneCorrectSquare(string x,string y, string sudoku)
+    public async Task<IActionResult> GetOneCorrectSquare(string x,string y, string sudoku)
     {
         _logger.LogInformation("Http Get request to solve one square // {0}", DateTime.UtcNow.ToString());
-
-        int[] squareCoordinates = ParseCoordinates(x,y);
-        int[] sudArray = ParseSudoku(sudoku);
-
-        try 
+        
+        try
         {
-            SudokuTable sudokuTable = new(sudArray);
-            return Results.Ok(sudokuTable.GetOneCorrectValue(squareCoordinates[0], squareCoordinates[1]));
+            int[] sudokuArray = sudoku.Split(",").Select(Int32.Parse).ToArray();
+            if (int.TryParse(x, out int xCoordinate) && int.TryParse(y, out int yCoordinate))
+            {
+                try
+                {
+                    SudokuTable sudokuTable = await SudokuTable.BuildTable(sudokuArray);
+                    return Ok(sudokuTable.GetOneCorrectValue(xCoordinate, yCoordinate));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("Bad request", ex.Message);
+                    return BadRequest(ModelState);
+                }
+            } else
+            {
+                ModelState.AddModelError("Coordinates error", $"One or both of coordinates is not a number x: {x}, y: {y}");
+                return BadRequest(ModelState);
+            }
         } catch (Exception ex)
         {
-            ModelState.AddModelError("Sudoku malform", ex.Message);
-            return Results.BadRequest(ModelState);
+            ModelState.AddModelError("Sudoku format", ex.Message);
+            return BadRequest(ModelState);
         }
+
     }
     [HttpGet("/randomsudoku/{difficulty}")]
-    public IResult GetRandomSudoku(int difficulty)
+    public async Task<IActionResult> GetRandomSudoku(int difficulty)
     {
         _logger.LogInformation("Http Get request for random sudoku // {0}", DateTime.UtcNow.ToString());
         try
         {
-            var result = RandomSudoku.GetRandomSudoku(difficulty);
-            return Results.Ok(result);
+            var result = await RandomSudoku.GetRandomSudoku(difficulty);
+            return Ok(result);
         } catch (Exception ex)
         {
             ModelState.AddModelError("Bad request", ex.Message);
-            return Results.BadRequest(ModelState);
+            return BadRequest(ModelState);
         }
     }
 }

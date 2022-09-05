@@ -6,106 +6,117 @@ using UnitTests;
 [TestClass]
 public class SudokuTableTests
 {
-    SudokuTable sudTable = new(new int[81]);
-
-    [TestInitialize] 
-    public void InitializeTable()
-    {
-        sudTable = new SudokuTable(SudokuArrays.Empty());
-    }
     [TestMethod]
-    public void TestTableXYBox()
+    public async Task TestTableXYBoxAndGetSquare()
     {
+        SudokuTable sudokuTable = await SudokuTable.BuildTable(SudokuArrays.Empty());
         int count = 0;
         int box;
-        SudokuSquare square; 
-
-        for (int y = 0; y < 9; y++)
+        SudokuSquare square;
+        for (int iy = 0; iy < 9; iy++)
         {
-            if (y < 3)
+            if (iy < 3)
                 box = 0;
-            else if (y > 2 && y < 6)
+            else if (iy > 2 && iy < 6)
                 box = 3;
             else
                 box = 6;
-            for (int x = 0; x < 9; x++)
+            for (int ix = 0; ix < 9; ix++)
             {
-                if (x == 3 || x == 6)
+                if (ix == 3 || ix == 6)
                     box++;
-                square = sudTable.GetSquare(x, y);
-                if (square is not null)
-                {
-                    Assert.AreEqual((Values)SudokuArrays.Empty()[count], square.Value);
-                    Assert.AreEqual(x, square.X);
-                    Assert.AreEqual(y, square.Y);
-                    Assert.AreEqual(box, square.Box);
-                }
+                square = sudokuTable.GetSquare(ix, iy, false);
+                Assert.AreEqual(square.X, ix);
+                Assert.AreEqual(square.Y, iy);
+                Assert.AreEqual(square.Box, box);
+                Assert.AreEqual((Values)SudokuArrays.Empty()[count], square.Value);
+                count++;
+            }
+        }
+        sudokuTable = await SudokuTable.BuildTable(SudokuArrays.sudCorrect);
+        count = 0;
+        for (int iy = 0; iy < 9; iy++)
+        {
+            if (iy < 3)
+                box = 0;
+            else if (iy > 2 && iy < 6)
+                box = 3;
+            else
+                box = 6;
+            for (int ix = 0; ix < 9; ix++)
+            {
+                if (ix == 3 || ix == 6)
+                    box++;
+                square = sudokuTable.GetSquare(ix, iy, false);
+                Assert.AreEqual(square.X, ix);
+                Assert.AreEqual(square.Y, iy);
+                Assert.AreEqual(square.Box, box);
+                Assert.AreEqual((Values)SudokuArrays.sudCorrect[count], square.Value);
                 count++;
             }
         }
         try
         {
-            sudTable.GetSquare(9999, 9999);
+            sudokuTable = await SudokuTable.BuildTable(SudokuArrays.sudMalform);
         } catch (Exception ex)
         {
             Assert.IsTrue(ex is ArgumentException);
-            Assert.AreEqual(ex.Message, "Coordinates out of range");
+            Assert.AreEqual(ex.Message, "Sudoku had incorrect value for a square. Check values: 98,1789");
+        }
+        try
+        {
+            sudokuTable.GetSquare(9999, 9999, false);
+        } catch (Exception ex)
+        {
+            Assert.IsTrue(ex is ArgumentException);
+            Assert.AreEqual(ex.Message, "Coordinates out of range x: 9999 y: 9999");
         }
     }
-
     [TestMethod]
-    public void TestSudokuSquareIsCorrectAndPossibleValues()
+    public async Task TestStaticListMethods()
     {
-        var square = sudTable.GetSquare(0, 0);
-        if (square is not null)
+        SudokuTable sudokuTable = await SudokuTable.BuildTable(SudokuArrays.sudCorrectNineEmpty);
+        Assert.IsTrue(9 == SudokuTable.EmptySquares(sudokuTable.GameSquares).Count);
+        Assert.IsTrue(72 == SudokuTable.CorrectSquares(sudokuTable.GameSquares).Count);
+        Assert.IsTrue(9 == SudokuTable.InCorrectSquares(sudokuTable.GameSquares).Count);
+
+        sudokuTable = await SudokuTable.BuildTable(SudokuArrays.sudHardAlmostEmpty);
+        Assert.IsTrue(5 == SudokuTable.CorrectSquares(sudokuTable.GameSquares).Count);
+        Assert.IsTrue(76 == SudokuTable.EmptySquares(sudokuTable.GameSquares).Count);
+        Assert.IsTrue(76 == SudokuTable.InCorrectSquares(sudokuTable.GameSquares).Count);
+
+        sudokuTable = await SudokuTable.BuildTable(SudokuArrays.sudImpossible);
+        Assert.IsTrue(5 == SudokuTable.CorrectSquares(sudokuTable.GameSquares).Count);
+        Assert.IsTrue(74 == SudokuTable.EmptySquares(sudokuTable.GameSquares).Count);
+        Assert.IsTrue(76 == SudokuTable.InCorrectSquares(sudokuTable.GameSquares).Count);
+    }
+    [TestMethod]
+    public async Task TestCompletedTable()
+    {
+        SudokuTable sudokuTable = await SudokuTable.BuildTable(SudokuArrays.sudHard);
+        Assert.IsFalse(sudokuTable.Impossible);
+        Assert.AreNotEqual(sudokuTable.GameSquares.Select(square => (int)square.Value).ToArray(), sudokuTable.GetCompletedSudoku().Sudoku);
+        sudokuTable = await SudokuTable.BuildTable(sudokuTable.GetCompletedSudoku().Sudoku);
+        Assert.IsFalse(sudokuTable.Impossible);
+
+        sudokuTable = await SudokuTable.BuildTable(SudokuArrays.sudHardAlmostEmpty);
+        SudokuTable compTable = await SudokuTable.BuildTable(sudokuTable.GetCompletedSudoku().Sudoku);
+        Assert.AreNotEqual(SudokuTable.CorrectSquares(sudokuTable.GameSquares), SudokuTable.CorrectSquares(compTable.GameSquares));
+
+        sudokuTable = await SudokuTable.BuildTable(SudokuArrays.Empty());
+        Assert.IsFalse(sudokuTable.Impossible);
+        Assert.IsTrue(SudokuTable.EmptySquares(sudokuTable.GameSquares).Count == 81);
+        sudokuTable = await SudokuTable.BuildTable(sudokuTable.GetCompletedSudoku().Sudoku);
+        Assert.IsTrue(SudokuTable.CorrectSquares(sudokuTable.GameSquares).Count == 81);
+
+        sudokuTable = await SudokuTable.BuildTable(SudokuArrays.sudImpossible);
+        Assert.IsTrue(sudokuTable.Impossible);
+        try
         {
-            Assert.IsFalse(sudTable.CorrectSquares.Any());
-            Assert.AreEqual(9, square.PossibleCorrectValues.Count);
-
-            square.InsertValue(Values.One);
-            Assert.AreEqual(1, sudTable.CorrectSquares.Count);
-        }
-        square = sudTable.GetSquare(1, 0);
-        if (square is not null)
+            sudokuTable.GetCompletedSudoku();
+        } catch (Exception ex)
         {
-            Assert.AreEqual(8, square.PossibleCorrectValues.Count);
+            Assert.AreEqual("Sudoku is impossible to solve", ex.Message);
         }
-        sudTable = new SudokuTable(SudokuArrays.sudCorrect);
-
-        Assert.AreEqual(81, sudTable.CorrectSquares.Count);
-        Assert.IsFalse(sudTable.EmptySquares.Any());
-
-        Assert.AreEqual(0, sudTable.EmptySquares.Count);
-
-        sudTable = new SudokuTable(SudokuArrays.sudCorrectNineEmpty);
-        square = sudTable.GetSquare(0, 0);
-        if (square is not null)
-            Assert.IsTrue(square.IsCorrect);
-        square = sudTable.GetSquare(6, 0);
-        if (square is not null)
-            Assert.IsFalse(square.IsCorrect);
-
-        Assert.AreEqual(72, sudTable.CorrectSquares.Count);
-        Assert.AreEqual(9, sudTable.EmptySquares.Count);
-
-        square = sudTable.GetSquare(6, 0);
-        if (square is not null)
-        {
-            square.InsertValue(Values.Nine);
-            Assert.AreEqual(10, sudTable.InCorrectSquares.Count);
-            square.InsertValue(Values.Eight);
-            Assert.AreEqual(10, sudTable.InCorrectSquares.Count);
-            square.InsertValue(Values.Seven);
-            Assert.AreEqual(8, sudTable.InCorrectSquares.Count);
-        }
-        square = sudTable.GetSquare(7, 0);
-        if (square is not null)
-        {
-            Assert.AreEqual((Values)8, square.PossibleCorrectValues.First());
-            square.InsertValue(Values.Eight);
-        }
-        square = sudTable.GetSquare(8, 0);
-        if (square is not null)
-            Assert.AreEqual(Values.Nine, square.PossibleCorrectValues.First());
     }
 }

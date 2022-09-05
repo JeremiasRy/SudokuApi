@@ -15,25 +15,23 @@ public class SudokuSquare
 
     public List<Values> PossibleCorrectValues { get {
 
-            var posValues = new List<Values>();
-            if (Value != Values.NoValue)
-                return posValues;
-            foreach (Values value in Enum.GetValues(typeof(Values)))
-            {
-                if (value == Values.NoValue)
+        var posValues = new List<Values>();
+        if (Value != Values.NoValue)
+            return posValues;
+        foreach (Values value in Enum.GetValues(typeof(Values)))
+        {
+            if (value == Values.NoValue)
                     continue;
-                if (HorizontalCheck(value) && VerticalCheck(value) && BoxCheck(value))
-                {
+            if (HorizontalCheck(value) && VerticalCheck(value) && BoxCheck(value))
                     posValues.Add(value);
-                }
-            }
-            if (posValues.Any())
-                return posValues;
-            else
-            { 
-                posValues.Add(Values.NoValue);
-                return posValues;
-            }
+        }
+        if (posValues.Any())
+            return posValues;
+        else
+        { 
+           posValues.Add(Values.NoValue);
+           return posValues; // Dead end
+        }
         } }
     
     public void InsertValue(Values value) => Value = value;

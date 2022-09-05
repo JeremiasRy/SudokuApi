@@ -1,5 +1,5 @@
 ﻿using SudokuBackend.Controllers;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using UnitTests;
 
 namespace ApiTests;
@@ -7,24 +7,27 @@ namespace ApiTests;
 [TestClass]
 public class ApiGet
 {
-    [TestMethod] 
-    public void ApiGetSolvedReturnsSolvedArray()
+    [TestInitialize]
+    public void InitializeTests()
     {
-
     }
-    [TestMethod]
-    public void ApiInformsMalformattedSudoku()
+    [TestMethod] 
+    public async Task ApiGetSolvedReturnsSolvedArray()
     {
         var controller = new SudokuController(new Microsoft.Extensions.Logging.LoggerFactory());
-        try
-        {
-            controller.GetCompletedSudoku("0,0,0");
-        } catch (Exception ex)
-        {
-            Assert.IsTrue(ex is ArgumentException);
-            Assert.AreEqual(ex.Message, "sudoku was malform, should have length of 81 was 3");
-        }
+        IActionResult result = await controller.GetCompletedSudoku(String.Join(",",SudokuArrays.sudHard));
+        Assert.IsTrue(result is OkObjectResult);
+        var keepGoing = result as OkObjectResult;
 
+       
+    }
+    [TestMethod]
+    public async Task ApiInformsMalformattedSudoku()
+    {
+        var controller = new SudokuController(new Microsoft.Extensions.Logging.LoggerFactory());
+        IActionResult result = await controller.GetCompletedSudoku(String.Join(",", SudokuArrays.sudMalform));
+        Assert.IsTrue(result is BadRequestObjectResult);
+        var keepGoing = result as BadRequestObjectResult;        
     }
     [TestMethod]
     public void ApiInformsImpossibleToSolve()
