@@ -13,21 +13,21 @@ public class SudokuTableTests
         int count = 0;
         int box;
         SudokuSquare square;
-        for (int iy = 0; iy < 9; iy++)
+        for (int iRow = 0; iRow < 9; iRow++)
         {
-            if (iy < 3)
+            if (iRow < 3)
                 box = 0;
-            else if (iy > 2 && iy < 6)
+            else if (iRow > 2 && iRow < 6)
                 box = 3;
             else
                 box = 6;
-            for (int ix = 0; ix < 9; ix++)
+            for (int iColumn = 0; iColumn < 9; iColumn++)
             {
-                if (ix == 3 || ix == 6)
+                if (iColumn == 3 || iColumn == 6)
                     box++;
-                square = sudokuTable.GetSquare(ix, iy, false);
-                Assert.AreEqual(square.Row, ix);
-                Assert.AreEqual(square.Column, iy);
+                square = sudokuTable.GetSquare(iRow, iColumn, false);
+                Assert.AreEqual(square.Row, iColumn);
+                Assert.AreEqual(square.Column, iRow);
                 Assert.AreEqual(square.Box, box);
                 Assert.AreEqual((Values)SudokuArrays.Empty()[count], square.Value);
                 count++;
