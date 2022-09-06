@@ -45,7 +45,7 @@ public static class RandomSudoku
                         {
                             emptySquares = SudokuTable.EmptySquares(sudokuTable.GameSquares);
                             squareToFill = emptySquares.ElementAt(random.Next(emptySquares.Count - 1));
-                            squareToFill.InsertValue(sudokuTable.GetSquare(squareToFill.X, squareToFill.Y, true).Value);
+                            squareToFill.InsertValue(sudokuTable.GetSquare(squareToFill.Row, squareToFill.Column, true).Value);
                         }
                     }
                     break;
@@ -55,7 +55,7 @@ public static class RandomSudoku
                         {
                             emptySquares = SudokuTable.EmptySquares(sudokuTable.GameSquares);
                             squareToFill = emptySquares.ElementAt(random.Next(emptySquares.Count - 1));
-                            squareToFill.InsertValue(sudokuTable.GetSquare(squareToFill.X, squareToFill.Y, true).Value);
+                            squareToFill.InsertValue(sudokuTable.GetSquare(squareToFill.Row, squareToFill.Column, true).Value);
                         }
                     }
                     break;
@@ -65,7 +65,7 @@ public static class RandomSudoku
                         {
                             emptySquares = SudokuTable.EmptySquares(sudokuTable.GameSquares);
                             squareToFill = emptySquares.ElementAt(random.Next(emptySquares.Count - 1));
-                            squareToFill.InsertValue(sudokuTable.GetSquare(squareToFill.X, squareToFill.Y, true).Value);
+                            squareToFill.InsertValue(sudokuTable.GetSquare(squareToFill.Row, squareToFill.Column, true).Value);
                         }
                     }
                     break;

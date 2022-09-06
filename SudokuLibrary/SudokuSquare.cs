@@ -1,16 +1,16 @@
 ﻿namespace SudokuLibrary;
 public class SudokuSquare
 {
-    public int X { get; private set; }
-    public int Y { get; private set; }
+    public int Row { get; private set; }
+    public int Column { get; private set; }
     public int Box { get; private set; }
     public Values Value { get; private set; }
     readonly List<SudokuSquare> _referenceTable;
 
     public bool IsCorrect => HorizontalCheck(Value) && VerticalCheck(Value) && BoxCheck(Value) && Value != Values.NoValue;
 
-    bool HorizontalCheck(Values value) => !_referenceTable.Any(SudSquare => SudSquare.X == X && SudSquare != this && SudSquare.Value == value);
-    bool VerticalCheck(Values value) => !_referenceTable.Any(SudSquare => SudSquare.Y == Y && SudSquare != this && SudSquare.Value == value);
+    bool HorizontalCheck(Values value) => !_referenceTable.Any(SudSquare => SudSquare.Row == Row && SudSquare != this && SudSquare.Value == value);
+    bool VerticalCheck(Values value) => !_referenceTable.Any(SudSquare => SudSquare.Column == Column && SudSquare != this && SudSquare.Value == value);
     bool BoxCheck(Values value) => !_referenceTable.Any(SudSquare => SudSquare.Box == Box && SudSquare != this && SudSquare.Value == value);
 
     public List<Values> PossibleCorrectValues { get {
@@ -35,10 +35,10 @@ public class SudokuSquare
         } }
     
     public void InsertValue(Values value) => Value = value;
-    public SudokuSquare(Values value, int x, int y, int box, List<SudokuSquare> sudokuTable)
+    public SudokuSquare(Values value, int row, int column, int box, List<SudokuSquare> sudokuTable)
     {
-        X = x;
-        Y = y;
+        Row = row;
+        Column = column;
         Value = value;
         Box = box;
         _referenceTable = sudokuTable;

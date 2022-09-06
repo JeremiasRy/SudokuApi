@@ -15,6 +15,8 @@ public class SudokuController : ControllerBase
     [HttpGet("/solve/{sudoku}")]
     public async Task<IActionResult> GetCompletedSudoku(string sudoku)
     {
+        _logger.LogInformation("Http Get request to solve // {0}", DateTime.UtcNow.ToString());
+
         try
         {
             int[] sudokuArray = sudoku.Split(",").Select(Int32.Parse).ToArray();
@@ -28,7 +30,6 @@ public class SudokuController : ControllerBase
                 ModelState.AddModelError("Bad request", ex.Message);
                 return BadRequest(ModelState);
             }
-
         }
         catch (Exception ex)
         {
@@ -37,28 +38,21 @@ public class SudokuController : ControllerBase
         }
     }
     [HttpGet("/solveSquare/{x}/{y}/{sudoku}")]
-    public async Task<IActionResult> GetOneCorrectSquare(string x,string y, string sudoku)
+    public async Task<IActionResult> GetOneCorrectSquare(int row,int column, string sudoku)
     {
         _logger.LogInformation("Http Get request to solve one square // {0}", DateTime.UtcNow.ToString());
-        
+
         try
         {
             int[] sudokuArray = sudoku.Split(",").Select(Int32.Parse).ToArray();
-            if (int.TryParse(x, out int xCoordinate) && int.TryParse(y, out int yCoordinate))
+            try
             {
-                try
-                {
-                    SudokuTable sudokuTable = await SudokuTable.BuildTable(sudokuArray);
-                    return Ok(sudokuTable.GetOneCorrectValue(xCoordinate, yCoordinate));
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("Bad request", ex.Message);
-                    return BadRequest(ModelState);
-                }
-            } else
+                SudokuTable sudokuTable = await SudokuTable.BuildTable(sudokuArray);
+                return Ok(sudokuTable.GetOneCorrectValue(row, column));
+            }
+            catch (Exception ex)
             {
-                ModelState.AddModelError("Coordinates error", $"One or both of coordinates is not a number x: {x}, y: {y}");
+                ModelState.AddModelError("Bad request", ex.Message);
                 return BadRequest(ModelState);
             }
         } catch (Exception ex)
@@ -79,6 +73,31 @@ public class SudokuController : ControllerBase
         } catch (Exception ex)
         {
             ModelState.AddModelError("Bad request", ex.Message);
+            return BadRequest(ModelState);
+        }
+    }
+    [HttpGet("/IncorrectSquares/{sudoku}")]
+    public async Task<IActionResult> GetIncorrectCoordinates(string sudoku)
+    {
+        _logger.LogInformation("Http Get request for incorrect squares // {0}", DateTime.UtcNow.ToString());
+
+        try
+        {
+            int[] sudokuArray = sudoku.Split(",").Select(Int32.Parse).ToArray();
+            try
+            {
+                var sudokuTable = await SudokuTable.BuildTable(sudokuArray);
+                return Ok(SudokuTable.InCorrectSquares(sudokuTable.GameSquares));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("Bad request", ex.Message);
+                return BadRequest(ModelState);
+            }
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Wrong format", ex.Message);
             return BadRequest(ModelState);
         }
     }

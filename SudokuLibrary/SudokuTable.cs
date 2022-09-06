@@ -27,28 +27,27 @@ public class SudokuTable
             throw new Exception("Sudoku is impossible to solve");
         return new SolveResponse(CompleteTable.Select(x => (int)x.Value).ToArray());
     }
-    public SolveResponse GetOneCorrectValue(int x, int y)
+    public SolveResponse GetOneCorrectValue(int row, int column)
     {
-        var squareToInsert = GetSquare(x, y, false);
-        var squareCorrect = GetSquare(x, y, true);
+        var squareToInsert = GetSquare(row, column, false);
+        var squareCorrect = GetSquare(row, column, true);
         squareToInsert.InsertValue(squareCorrect.Value);
         if (Impossible)
             throw new Exception("Sudoku is impossible to solve");
         else
-            return new SolveResponse(GameSquares.Select(x => (int)x.Value).ToArray());
+            return new SolveResponse(GameSquares.Select(square => (int)square.Value).ToArray());
     }
-    public SudokuSquare GetSquare(int x, int y, bool FromCompleted)
+    public SudokuSquare GetSquare(int row, int column, bool FromCompleted)
     {
-        if (x > 8 || y > 8)
-            throw new ArgumentException(message: $"Coordinates out of range x: {x} y: {y}");
+        if (row > 8 || column > 8)
+            throw new ArgumentException(message: $"Coordinates out of range row: {row} column: {column}");
 
-        var square = FromCompleted ? CompleteTable.Find(square => square.X == x && square.Y == y) : GameSquares.Find(square => square.X == x && square.Y == y);
+        var square = FromCompleted ? CompleteTable.Find(square => square.Row == row && square.Column == column) : GameSquares.Find(square => square.Row == row && square.Column == column);
         if (square is not null)
             return square;
         else
             throw new Exception(message: "Didn't find square");
     }
-
     public static async Task<SudokuTable> BuildTable(int[] sudoku)
     {
         if (sudoku.Length != 81)
@@ -63,19 +62,19 @@ public class SudokuTable
         var startingSquares = new List<SudokuSquare>();
         int count = 0;
         int box;
-        for (int iy = 0; iy < 9; iy++)
+        for (int iRow = 0; iRow < 9; iRow++)
         {
-            if (iy < 3)
+            if (iRow < 3)
                 box = 0;
-            else if (iy > 2 && iy < 6)
+            else if (iRow > 2 && iRow < 6)
                 box = 3;
             else
                 box = 6;
-            for (int ix = 0; ix < 9; ix++)
+            for (int iColumn = 0; iColumn < 9; iColumn++)
             {
-                if (ix == 3 || ix == 6)
+                if (iColumn == 3 || iColumn == 6)
                     box++;
-                startingSquares.Add(new SudokuSquare((Values)sudoku[count], ix, iy, box, startingSquares));
+                startingSquares.Add(new SudokuSquare((Values)sudoku[count], iRow, iColumn, box, startingSquares));
                 count++;
             }
         }
@@ -83,14 +82,13 @@ public class SudokuTable
 
         return new SudokuTable(startingSquares, solvedSquares, CorrectSquares(solvedSquares).Count < 81);
     }
-
     static List<SudokuSquare> SolvePuzzle(List<SudokuSquare> sudoku)
     {
         Queue<List<SudokuSquare>> _branches = new();
         var start = new List<SudokuSquare>();
 
         foreach (var sudokuSquare in sudoku)
-            start.Add(new SudokuSquare(sudokuSquare.Value, sudokuSquare.X, sudokuSquare.Y, sudokuSquare.Box, start));
+            start.Add(new SudokuSquare(sudokuSquare.Value, sudokuSquare.Row, sudokuSquare.Column, sudokuSquare.Box, start));
 
         if (CorrectSquares(start).Count == 81) // Solved already
         {
@@ -141,12 +139,11 @@ public class SudokuTable
             List<SudokuSquare> newBranch = new();
 
             foreach (var square in squares)
-                newBranch.Add(new SudokuSquare(square.Value, square.X, square.Y, square.Box, newBranch));
+                newBranch.Add(new SudokuSquare(square.Value, square.Row, square.Column, square.Box, newBranch));
 
             _branches.Enqueue(newBranch);
         }
     }
-
     private SudokuTable(List<SudokuSquare> starting, List<SudokuSquare> solvedTable, bool impossible)
     {
         GameSquares = starting;
