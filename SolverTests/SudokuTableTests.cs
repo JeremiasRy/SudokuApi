@@ -25,7 +25,7 @@ public class SudokuTableTests
             {
                 if (iColumn == 3 || iColumn == 6)
                     box++;
-                square = sudokuTable.GetSquare(iRow, iColumn, false);
+                square = sudokuTable.GetSquare(count, false);
                 Assert.AreEqual(square.Column, iColumn);
                 Assert.AreEqual(square.Row, iRow);
                 Assert.AreEqual(square.Box, box);
@@ -47,7 +47,7 @@ public class SudokuTableTests
             {
                 if (iColumn == 3 || iColumn == 6)
                     box++;
-                square = sudokuTable.GetSquare(iRow, iColumn, false);
+                square = sudokuTable.GetSquare(count, false);
                 Assert.AreEqual(square.Column, iColumn);
                 Assert.AreEqual(square.Row, iRow);
                 Assert.AreEqual(square.Box, box);
@@ -65,11 +65,11 @@ public class SudokuTableTests
         }
         try
         {
-            sudokuTable.GetSquare(9999, 9999, false);
+            sudokuTable.GetSquare(9999, false);
         } catch (Exception ex)
         {
             Assert.IsTrue(ex is ArgumentException);
-            Assert.AreEqual(ex.Message, "Coordinates out of range row: 9999 column: 9999");
+            Assert.AreEqual(ex.Message, "Index out of range: 9999");
         }
     }
     [TestMethod]

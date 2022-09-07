@@ -27,22 +27,22 @@ public class SudokuTable
             throw new Exception("Sudoku is impossible to solve");
         return new SolveResponse(CompleteTable.Select(x => (int)x.Value).ToArray());
     }
-    public SolveResponse GetOneCorrectValue(int row, int column)
+    public SolveResponse GetOneCorrectValue(int index)
     {
-        var squareToInsert = GetSquare(row, column, false);
-        var squareCorrect = GetSquare(row, column, true);
+        var squareToInsert = GetSquare(index, false);
+        var squareCorrect = GetSquare(index, true);
         squareToInsert.InsertValue(squareCorrect.Value);
         if (Impossible)
             throw new Exception("Sudoku is impossible to solve");
         else
             return new SolveResponse(GameSquares.Select(square => (int)square.Value).ToArray());
     }
-    public SudokuSquare GetSquare(int row, int column, bool FromCompleted)
+    public SudokuSquare GetSquare(int index, bool FromCompleted)
     {
-        if (row > 8 || column > 8)
-            throw new ArgumentException(message: $"Coordinates out of range row: {row} column: {column}");
+        if (index < 0 || index > 80)
+            throw new ArgumentException(message: $"Index out of range: {index}");
 
-        var square = FromCompleted ? CompleteTable.Find(square => square.Row == row && square.Column == column) : GameSquares.Find(square => square.Row == row && square.Column == column);
+        var square = FromCompleted ? CompleteTable.Find(square => square.Index == index) : GameSquares.Find(square => square.Index == index);
         if (square is not null)
             return square;
         else

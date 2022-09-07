@@ -38,7 +38,7 @@ public class SudokuController : ControllerBase
         }
     }
     [HttpGet("/solveSquare/{x}/{y}/{sudoku}")]
-    public async Task<IActionResult> GetOneCorrectSquare(int row,int column, string sudoku)
+    public async Task<IActionResult> GetOneCorrectSquare(int index, string sudoku)
     {
         _logger.LogInformation("Http Get request to solve one square // {0}", DateTime.UtcNow.ToString());
 
@@ -48,7 +48,7 @@ public class SudokuController : ControllerBase
             try
             {
                 SudokuTable sudokuTable = await SudokuTable.BuildTable(sudokuArray);
-                return Ok(sudokuTable.GetOneCorrectValue(row, column));
+                return Ok(sudokuTable.GetOneCorrectValue(index));
             }
             catch (Exception ex)
             {

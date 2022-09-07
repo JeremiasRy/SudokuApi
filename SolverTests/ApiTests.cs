@@ -46,7 +46,7 @@ public class ApiGet
     public async Task ApiReturnsOneCorrectValue()
     {
         var controller = new SudokuController(new Microsoft.Extensions.Logging.LoggerFactory());
-        IActionResult result = await controller.GetOneCorrectSquare(0,0,String.Join(",", SudokuArrays.sudHard));
+        IActionResult result = await controller.GetOneCorrectSquare(0,String.Join(",", SudokuArrays.sudHard));
         Assert.IsTrue(result is OkObjectResult);
         if (result is not OkObjectResult keepGoing)
             return;
@@ -57,8 +57,8 @@ public class ApiGet
 
         var original = await SudokuTable.BuildTable(SudokuArrays.sudHard);
         var check = await SudokuTable.BuildTable(response.Sudoku);
-        Assert.IsFalse(original.GetSquare(0, 0, false).IsCorrect);
-        Assert.IsTrue(check.GetSquare(0, 0, false).IsCorrect);
+        Assert.IsFalse(original.GetSquare(0, false).IsCorrect);
+        Assert.IsTrue(check.GetSquare(0, false).IsCorrect);
     }
     [TestMethod]
     public async Task ApiReturnsInCorrectList()

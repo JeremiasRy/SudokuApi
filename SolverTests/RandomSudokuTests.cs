@@ -5,7 +5,7 @@ namespace SudokuTests;
 public class RandomSudokuTests
 {
     [TestMethod]
-    public async Task ReceiveARandomSudokuAccordingToDifficulty()
+    public async Task ReceiveARandomSudokuAccordingToDifficulty() //This sometimes fails on the hardest difficulty, it returns 14 correct squares instead of 15.
     {
         var randomSudoku1 = await RandomSudoku.GetRandomSudoku(0);
         var randomSudoku2 = await RandomSudoku.GetRandomSudoku(1);
