@@ -74,7 +74,7 @@ public class SudokuTable
             {
                 if (iColumn == 3 || iColumn == 6)
                     box++;
-                startingSquares.Add(new SudokuSquare((Values)sudoku[count], iRow, iColumn, box, startingSquares));
+                startingSquares.Add(new SudokuSquare((Values)sudoku[count], iRow, iColumn, box, count, startingSquares));
                 count++;
             }
         }
@@ -88,7 +88,7 @@ public class SudokuTable
         var start = new List<SudokuSquare>();
 
         foreach (var sudokuSquare in sudoku)
-            start.Add(new SudokuSquare(sudokuSquare.Value, sudokuSquare.Row, sudokuSquare.Column, sudokuSquare.Box, start));
+            start.Add(new SudokuSquare(sudokuSquare.Value, sudokuSquare.Row, sudokuSquare.Column, sudokuSquare.Box, sudokuSquare.Index, start));
 
         if (CorrectSquares(start).Count == 81) // Solved already
         {
@@ -139,7 +139,7 @@ public class SudokuTable
             List<SudokuSquare> newBranch = new();
 
             foreach (var square in squares)
-                newBranch.Add(new SudokuSquare(square.Value, square.Row, square.Column, square.Box, newBranch));
+                newBranch.Add(new SudokuSquare(square.Value, square.Row, square.Column, square.Box, square.Index, newBranch));
 
             _branches.Enqueue(newBranch);
         }

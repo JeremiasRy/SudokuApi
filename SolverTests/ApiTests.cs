@@ -9,10 +9,6 @@ namespace ApiTests;
 [TestClass]
 public class ApiGet
 {
-    [TestInitialize]
-    public void InitializeTests()
-    {
-    }
     [TestMethod] 
     public async Task ApiGetSolvedReturnsSolvedArray()
     {
@@ -72,8 +68,8 @@ public class ApiGet
         Assert.IsTrue(result is OkObjectResult);
         if (result is not OkObjectResult keepGoing)
             return;
-        Assert.IsTrue(keepGoing.Value is List<SudokuSquare>);
-        if (keepGoing.Value is not List<SudokuSquare> resultsList)
+        Assert.IsTrue(keepGoing.Value is List<int>);
+        if (keepGoing.Value is not List<int> resultsList)
             return;
         Assert.IsTrue(resultsList.Count == SudokuArrays.sudHard.Where(x => x == 0).Count());
     }

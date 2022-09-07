@@ -87,7 +87,7 @@ public class SudokuController : ControllerBase
             try
             {
                 var sudokuTable = await SudokuTable.BuildTable(sudokuArray);
-                return Ok(SudokuTable.InCorrectSquares(sudokuTable.GameSquares));
+                return Ok(SudokuTable.InCorrectSquares(sudokuTable.GameSquares).Select(square => square.Index).ToList());
             }
             catch (Exception ex)
             {

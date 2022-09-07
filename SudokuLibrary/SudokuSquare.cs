@@ -4,6 +4,7 @@ public class SudokuSquare
     public int Row { get; private set; }
     public int Column { get; private set; }
     public int Box { get; private set; }
+    public int Index { get; private set; }
     public Values Value { get; private set; }
     readonly List<SudokuSquare> _referenceTable;
 
@@ -35,12 +36,13 @@ public class SudokuSquare
         } }
     
     public void InsertValue(Values value) => Value = value;
-    public SudokuSquare(Values value, int row, int column, int box, List<SudokuSquare> sudokuTable)
+    public SudokuSquare(Values value, int row, int column, int box, int index, List<SudokuSquare> sudokuTable)
     {
         Row = row;
         Column = column;
         Value = value;
         Box = box;
+        Index = index;
         _referenceTable = sudokuTable;
     }
 }
