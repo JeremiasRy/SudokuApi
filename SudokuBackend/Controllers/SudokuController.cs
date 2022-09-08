@@ -37,7 +37,7 @@ public class SudokuController : ControllerBase
             return BadRequest(ModelState);
         }
     }
-    [HttpGet("/solveSquare/{x}/{y}/{sudoku}")]
+    [HttpGet("/solveSquare/{index}/{sudoku}")]
     public async Task<IActionResult> GetOneCorrectSquare(int index, string sudoku)
     {
         _logger.LogInformation("Http Get request to solve one square // {0}", DateTime.UtcNow.ToString());

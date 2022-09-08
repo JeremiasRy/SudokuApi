@@ -58,7 +58,7 @@ public class ApiGet
         var original = await SudokuTable.BuildTable(SudokuArrays.sudHard);
         var check = await SudokuTable.BuildTable(response.Sudoku);
         Assert.IsFalse(original.GetSquare(0, false).IsCorrect);
-        Assert.IsTrue(check.GetSquare(0, false).IsCorrect);
+        Assert.IsTrue(check.GetSquare(0,false).IsCorrect);
     }
     [TestMethod]
     public async Task ApiReturnsInCorrectList()
